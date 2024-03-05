@@ -61,7 +61,7 @@
                     <td>{{ product.price }}</td>
                     <td><span class="badge" :class="product.is_active ? 'badge-success' : 'badge-danger' ">{{ product.is_active ? 'Active' : 'InActive' }}</span></td>
                     <td>{{ product.description }}</td>
-                    <td>{{ product.image }}</td>
+                    <td><img :src="'/images/'+product.image" width="50px" height="50px" /></td>
                     <td>
                       <router-link :to='{name:"productEdit",params:{id:product.id}}' class="btn btn-success ml-1">Edit</router-link>
                       <button type="button" class="btn btn-danger ml-1" @click="deleteProduct(product.id)">Delete</button>

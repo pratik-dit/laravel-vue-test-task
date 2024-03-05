@@ -7,7 +7,7 @@
             <h2>Edit Product Info</h2>
           </div>
           <div class="card-body d-grid gap-3">
-            <form action="javascript:void(0)" method="post">
+            <form action="javascript:void(0)" method="post" enctype="multipart/form-data">
               <div
                 class="col-12"
                 v-if="Object.keys(validationErrors).length > 0"
@@ -51,6 +51,15 @@
               <div class="form-group mb-3">
                 <label for="description" class="mb-1">Description</label>
                 <textarea id="description" class="form-control form-control-md" v-model="form.description" placeholder="Product Desctiption"></textarea>
+              </div>
+              <div class="form-group mb-3">
+                <label for="image" class="mb-1">Image</label>
+                <input
+                  type="file"
+                  id="image"
+                  class="form-control form-control-md"
+                  v-on:change="onImageChange"
+                />
               </div>
               <div class="form-check mb-3">
                 <label for="active" class="mb-1 form-check-label">Active</label>
@@ -106,6 +115,9 @@ export default {
     this.getProduct()
   },
   methods: {
+    onImageChange(e){
+      this.form.product_image = e.target.files[0];
+    },
     async getProduct() {
       await axios.get('/sanctum/csrf-cookie')
       await axios.get('/api/product/'+this.$route.params.id).then(({data})=>{
@@ -123,7 +135,10 @@ export default {
     async update() {
       if(confirm("Are you sure to update this product?")){
         this.processing = true
-        await axios.post('/api/product/'+this.$route.params.id, this.form).then(({data})=>{
+        const config = {
+          headers: { 'content-type': 'multipart/form-data' }
+        }
+        await axios.post('/api/product/'+this.$route.params.id, this.form, config).then(({data})=>{
           if(data.status===401){
             this.validationErrors = {error:[data.message]}
           }else{

@@ -9,6 +9,7 @@ use Redirect,Response;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\Product\CreateRequest;
 use App\Http\Requests\Product\UpdateRequest;
+use File;
 
 class ProductController extends Controller
 {
@@ -24,9 +25,9 @@ class ProductController extends Controller
         $products = Product::where(function ($query) use($term) {
                   $query->where('name', 'LIKE', "%$term%")
                         ->orWhere('description', 'LIKE', "%$term%");
-                })->orderBy('id','desc')->paginate(10);
+                })->orderBy('id','desc')->paginate(5);
       }else {
-        $products = Product::orderBy('id','desc')->paginate(10);
+        $products = Product::orderBy('id','desc')->paginate(5);
       }
       $response = [
           'data' => $products
@@ -58,6 +59,11 @@ class ProductController extends Controller
       DB::beginTransaction();
       try {
         $data = $request->validated();
+        // Image Upload
+        $imageName = time().'.'.$request->image->getClientOriginalExtension();
+        $request->image->move(public_path('images'), $imageName);
+        $data['image'] = $imageName;
+
         Product::create($data);
 
         DB::commit();
@@ -85,7 +91,20 @@ class ProductController extends Controller
       }
       DB::beginTransaction();
       try {
-        $product->update($request->validated());
+        $data = $request->validated();
+        if($request->has('product_image') && $request->product_image !='')
+        {
+          // Image Upload
+          $imageName = time().'.'.$request->product_image->getClientOriginalExtension();
+          $request->product_image->move(public_path('images'), $imageName);
+          unset($data['product_image']);
+          $data['image'] = $imageName;
+
+          if (File::exists(public_path('images/'.$product->image))) {
+            File::delete(public_path('images/'.$product->image));
+          }
+        }
+        $product->update($data);
 
         DB::commit();
       } catch (\Exception $e) {

@@ -19,6 +19,7 @@ class CreateRequest extends FormRequest
           'category_id' => ['required', 'numeric'],
           'description' => ['nullable', 'string'],
           'is_active' => ['required', 'numeric'],
+          'image' => ['required', 'mimes:jpg,png'],
         ];
     }
 }
