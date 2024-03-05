@@ -60,7 +60,7 @@
                     <td>{{ showCategoryName(product.category_id) }}</td>
                     <td>{{ product.price }}</td>
                     <td><span class="badge" :class="product.is_active ? 'badge-success' : 'badge-danger' ">{{ product.is_active ? 'Active' : 'InActive' }}</span></td>
-                    <td>{{ product.description.substring(0,30)+".." }}</td>
+                    <td>{{ product.description }}</td>
                     <td>{{ product.image }}</td>
                     <td>
                       <router-link :to='{name:"productEdit",params:{id:product.id}}' class="btn btn-success ml-1">Edit</router-link>
@@ -128,7 +128,7 @@ export default {
     },
     async getProducts(page){
         this.processing = true
-        await axios.get(`/api/product/list?page=${page}&term=${this.term}`).then(({data})=>{
+        await axios.get(`/api/product?page=${page}&term=${this.term}`).then(({data})=>{
             this.products = data.data
         }).catch(({response})=>{
 

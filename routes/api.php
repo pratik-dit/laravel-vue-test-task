@@ -18,7 +18,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::group(['prefix' => 'product'], function () {
-  Route::get('/list', 'App\Http\Controllers\ProductController@getProducts');
+  Route::get('/', 'App\Http\Controllers\ProductController@getProducts');
+  Route::get('/{id}', 'App\Http\Controllers\ProductController@show');
+  Route::post('/', 'App\Http\Controllers\ProductController@create');
+  Route::post('/{id}', 'App\Http\Controllers\ProductController@update');
   Route::delete('/{id}', 'App\Http\Controllers\ProductController@destroy');
 });
 Route::group(['middleware' => ['auth:sanctum']], function() {

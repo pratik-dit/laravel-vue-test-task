@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Facades\App;
 use Redirect,Response;
+use Illuminate\Support\Facades\DB;
+use App\Http\Requests\Product\CreateRequest;
+use App\Http\Requests\Product\UpdateRequest;
 
 class ProductController extends Controller
 {
@@ -29,6 +32,73 @@ class ProductController extends Controller
           'data' => $products
       ];
       return response()->json($response);
+    }
+
+    public function show($product_id)
+    {
+      $product = Product::where('id', $product_id)->first();
+
+      if($product == null){
+        return response()->json([
+          'message' => 'Product not found.',
+          'status' => 401,
+          'data' => null
+        ]);
+      }
+
+      return response()->json([
+        'message' => 'Successfully removed product.',
+        'status' => 200,
+        'data' => $product
+      ]);
+    }
+
+    public function create(CreateRequest $request)
+    {
+      DB::beginTransaction();
+      try {
+        $data = $request->validated();
+        Product::create($data);
+
+        DB::commit();
+      } catch (\Exception $e) {
+          DB::rollback();
+          return response()->json([
+            'message'=>'Please try again!!',
+            'status' => 400
+          ]);
+      }
+      return response()->json([
+        'message'=>'Product created Successfully!!',
+        'status' => 200
+      ]);
+    }
+
+    public function update(UpdateRequest $request, $product_id)
+    {
+      $product = Product::where('id', $product_id)->first();
+      if($product == null){
+        return response()->json([
+          'message' => 'Product not found.',
+          'status' => 401
+        ]);
+      }
+      DB::beginTransaction();
+      try {
+        $product->update($request->validated());
+
+        DB::commit();
+      } catch (\Exception $e) {
+          DB::rollback();
+          return response()->json([
+            'message'=>'Please try again!!',
+            'status' => 400
+          ]);
+      }
+      return response()->json([
+        'message' => 'Successfully updated product.',
+        'status' => 200
+      ]);
     }
 
     public function destroy($productId)
